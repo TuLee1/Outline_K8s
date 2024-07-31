@@ -1,0 +1,36 @@
+Chia sẻ file /data/mydata/ từ máy master vào /home/data/ thuộc máy worker
+sudo apt install nfs-kernel-server -y
+
+systemctl enable rpcbind
+systemctl enable nfs-server
+systemctl enable nfs-lock
+systemctl enable nfs-idmap
+systemctl start rpcbind
+systemctl start nfs-server
+systemctl start nfs-lock
+systemctl start nfs-idmap
+
+Kiểm tra
+systemctl restart nfs-server
+
+sudo nano /etc/exports
+Ghi vào : /data/mydata  *(rw,sync,no_subtree_check,insecure)
+
+# Tạo thư mục
+sudo mkdir -p /data/mydata
+sudo chmod -R 777 /data/mydata
+
+# export và kiểm tra cấu hình chia sẻ
+sudo exportfs -rav
+sudo exportfs -v
+sudo showmount -e
+
+# Khởi động lại và kiểm tra dịch vụ
+systemctl stop nfs-server
+systemctl start nfs-server
+systemctl status nfs-server
+
+## vào máy worker1
+sudo apt install nfs-kernel-server -y
+
+mount -t nfs 192.168.72.189:/data/mydata/ /home/data/
